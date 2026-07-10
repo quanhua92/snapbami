@@ -1,0 +1,34 @@
+[project]
+name = "snapbami-server"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "Quan Hua", email = "quanhua92@gmail.com" }
+]
+requires-python = ">=3.13"
+dependencies = [
+    "aioboto3>=15.5.0",
+    "apscheduler>=3.11.3",
+    "asyncpg>=0.31.0",
+    "fastapi>=0.139.0",
+    "firebase-admin>=7.5.0",
+    "jinja2>=3.1.6",
+    "langchain-openai>=1.3.4",
+    "langgraph>=1.2.9",
+    "pydantic-settings>=2.14.2",
+    "redis>=8.0.1",
+    "uvicorn[standard]>=0.51.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[dependency-groups]
+dev = [
+    "httpx>=0.28.1",
+    "pytest>=9.1.1",
+    "pytest-asyncio>=1.4.0",
+    "ruff>=0.15.21",
+]

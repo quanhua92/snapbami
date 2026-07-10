@@ -1,0 +1,43 @@
+# Python
+__pycache__/
+*.py[cod]
+*.$pyclass
+*.so
+.Python
+.pytest_cache/
+.ruff_cache/
+
+# Virtual envs
+.venv/
+venv/
+env/
+
+# Build artifacts
+dist/
+build/
+*.egg-info/
+
+# Frontend
+node_modules/
+snapbami-web/dist/
+
+# Runtime
+sessions/
+*.log
+
+# Local secrets
+.env
+.env.local
+
+# Firebase service account
+firebase-service-account.json
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*~
+
+# Plan docs (internal)
+tmp/
