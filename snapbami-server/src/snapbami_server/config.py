@@ -1,14 +1,26 @@
+import pathlib
+
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+
+def _find_env_file(max_up: int = 4) -> str:
+    d = pathlib.Path(__file__).resolve().parent
+    for _ in range(max_up):
+        candidate = d / ".env"
+        if candidate.is_file():
+            return str(candidate)
+        d = d.parent
+    return ".env"
 
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
-        env_file=".env",
+        env_file=_find_env_file(),
         env_file_encoding="utf-8",
         extra="ignore",
     )
 
-    DATABASE_URL: str = "postgresql://postgres:postgres@localhost:5432/snapbami"
+    DATABASE_URL: str = "postgresql://snapbami:changeme@localhost:5432/snapbami"
     REDIS_URL: str = "redis://localhost:6379/0"
 
     OPENAI_API_KEY: str = ""
@@ -23,8 +35,6 @@ class Settings(BaseSettings):
     S3_BUCKET: str = "snapbami"
     S3_REGION: str = "us-east-1"
 
-    # Where the built SPA lives. In dev: ../snapbami-web/dist
-    # In Docker: /app/static (copied in Dockerfile). Override via env.
     STATIC_DIR: str = "../snapbami-web/dist"
 
 

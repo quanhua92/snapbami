@@ -6,6 +6,7 @@ Paste raw text → get a shareable dashboard in seconds.
 
 ```bash
 cp .env.example .env
+git config core.hooksPath githooks   # enable pre-commit hook (ruff check + format)
 ```
 
 ## Development
