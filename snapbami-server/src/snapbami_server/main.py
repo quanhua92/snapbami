@@ -1,27 +1,32 @@
-import os
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse
-from fastapi.staticfiles import StaticFiles
 
-from snapbami_server.config import settings
+from snapbami_server.api.routes_read import router as read_router
+from snapbami_server.api.routes_spa import router as spa_router
+from snapbami_server.cache.redis import get_redis
+from snapbami_server.db.pool import close_pool, init_pool
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Startup: pool, redis, firebase wired in later phases
+    await init_pool()
+    await get_redis()
     yield
-    # Shutdown
+    await close_pool()
 
 
-app = FastAPI(lifespan=lifespan)
+app = FastAPI(
+    lifespan=lifespan,
+    docs_url=None,
+    redoc_url=None,
+    openapi_url=None,
+)
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
-    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -32,20 +37,6 @@ async def health():
     return {"status": "ok"}
 
 
-# Serve static assets (js, css, images) and SPA fallback for client-side routing.
-_STATIC_DIR = settings.STATIC_DIR
-_index_html = os.path.join(_STATIC_DIR, "index.html")
-
-if os.path.isdir(_STATIC_DIR):
-    app.mount(
-        "/assets",
-        StaticFiles(directory=os.path.join(_STATIC_DIR, "assets")),
-        name="assets",
-    )
-
-    @app.get("/{path:path}")
-    async def spa_fallback(path: str):
-        file_path = os.path.join(_STATIC_DIR, path)
-        if path and os.path.isfile(file_path):
-            return FileResponse(file_path)
-        return FileResponse(_index_html)
+# Order matters: specific routes before SPA catch-all
+app.include_router(read_router)
+app.include_router(spa_router)

@@ -1,5 +1,5 @@
 services:
-  web:
+  server:
     ports: !reset []
     expose:
       - "8000"
@@ -14,7 +14,7 @@ services:
       - ./Caddyfile:/etc/caddy/Caddyfile
       - caddy-data:/data
     depends_on:
-      - web
+      - server
 
 volumes:
   caddy-data:

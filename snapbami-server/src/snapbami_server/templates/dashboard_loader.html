@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ title }}</title>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 0; padding: 2rem; background: #f9fafb; }
+    #dashboard-root { max-width: 1200px; margin: 0 auto; }
+    #loading { color: #6b7280; }
+    #error { color: #dc2626; }
+  </style>
+</head>
+<body>
+  <div id="dashboard-root">
+    <p id="loading">Loading dashboard...</p>
+  </div>
+  <script>
+    const publicId = "{{ public_id }}";
+    fetch(`./${publicId}.json`)
+      .then(r => {
+        if (!r.ok) throw new Error('Not found');
+        return r.json();
+      })
+      .then(spec => {
+        const root = document.getElementById('dashboard-root');
+        root.innerHTML = '';
+        const h1 = document.createElement('h1');
+        h1.textContent = spec.title || 'Dashboard';
+        root.appendChild(h1);
+        // Widget rendering comes in phase 02/10
+        const pre = document.createElement('pre');
+        pre.style.cssText = 'background:#fff;padding:1rem;border-radius:8px;overflow:auto;';
+        pre.textContent = JSON.stringify(spec, null, 2);
+        root.appendChild(pre);
+      })
+      .catch(() => {
+        const el = document.getElementById('loading');
+        el.id = 'error';
+        el.textContent = 'Failed to load dashboard';
+      });
+  </script>
+</body>
+</html>
