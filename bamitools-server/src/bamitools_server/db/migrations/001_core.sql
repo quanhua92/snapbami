@@ -30,6 +30,7 @@ CREATE TABLE IF NOT EXISTS workspace_items (
     public_id       TEXT UNIQUE,                        -- e.g. 'tY7b8cDe' (NULL if private)
     title           TEXT,
     content_hash    TEXT,
+    size_bytes      INTEGER NOT NULL DEFAULT 0,         -- object byte size, for quota accounting (D8)
     mode            TEXT NOT NULL,                      -- 'html' | 'pipeline' | 'raw'
     reclaim_key     TEXT,                               -- Recovery token for guest items
     password_hash   TEXT,                               -- Password hash for secure share links (/s/)
@@ -63,8 +64,8 @@ CREATE INDEX IF NOT EXISTS idx_workspace_items_public_id
 CREATE INDEX IF NOT EXISTS idx_workspace_items_content_hash
     ON workspace_items(content_hash) WHERE content_hash IS NOT NULL;
 
--- Index for anonymous item recovery
-CREATE INDEX IF NOT EXISTS idx_workspace_items_reclaim_key
+-- Unique lookup for guest claim (D9): reclaim_key is the claim capability
+CREATE UNIQUE INDEX IF NOT EXISTS uq_workspace_items_reclaim_key
     ON workspace_items(reclaim_key) WHERE reclaim_key IS NOT NULL;
 
 -- Index for TTL cleanup

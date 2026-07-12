@@ -10,9 +10,11 @@ PostgreSQL 18 with asyncpg. Migrations are plain SQL files, applied in order by 
 bamitools-server/src/bamitools_server/db/migrations/
 ├── 001_core.sql            # users + workspaces + workspace_items
 ├── 002_credentials.sql     # byok_keys + access_tokens + system_credentials
-├── 003_chat.sql            # conversations + messages + attachments  [DEFERRED app use]
-├── 004_telemetry.sql       # usage_log + reports
-└── 005_pipeline_runs.sql   # pipeline_runs  [DEFERRED app use]
+└── 003_telemetry.sql       # usage_log + reports
+
+# Deferred — NOT created until their RFC leaves Deferred status:
+#   conversations / messages / attachments  -> RFC-0005 (chat/Telegram)
+#   pipeline_runs                           -> RFC-0004 (LangGraph)
 ```
 
 Each file is self-contained: table definitions + their indexes together. Files run in alphabetical order. Foreign key dependencies must be respected (tables referenced must be defined earlier).
@@ -29,19 +31,18 @@ Each file is self-contained: table definitions + their indexes together. Files r
 | `access_tokens` | 002_credentials | API tokens for MCP/CLI (hashed) — [RFC-0002](./rfc/0002-mcp-and-tokens.md) |
 | `byok_keys` | 002_credentials | User LLM keys (tools later) — [RFC-0007](./rfc/0007-byok.md) |
 | `system_credentials` | 002_credentials | Platform secrets |
-| `usage_log` | 004_telemetry | Billing/analytics actions |
-| `reports` | 004_telemetry | Content moderation reports |
+| `usage_log` | 003_telemetry | Billing/analytics actions |
+| `reports` | 003_telemetry | Content moderation reports |
 
-### Deferred (schema may exist; no app feature yet)
+### Deferred (tables not yet created)
 
-| Table | File | When |
-|---|---|---|
-| `conversations` | 003_chat | [RFC-0005](./rfc/0005-deferred-chat-telegram.md) |
-| `messages` | 003_chat | RFC-0005 |
-| `attachments` | 003_chat | RFC-0005 |
-| `pipeline_runs` | 005_pipeline_runs | [RFC-0004](./rfc/0004-deferred-langgraph-pipeline.md) |
+These tables do **not** exist in the current schema. They are added as new
+migrations only when their RFC leaves Deferred status:
 
-Do not build product features on deferred tables until those RFCs leave Deferred status.
+| Table | When |
+|---|---|
+| `conversations` / `messages` / `attachments` | [RFC-0005](./rfc/0005-deferred-chat-telegram.md) (chat/Telegram) |
+| `pipeline_runs` | [RFC-0004](./rfc/0004-deferred-langgraph-pipeline.md) (LangGraph) |
 
 ## Conventions
 
@@ -68,6 +69,7 @@ Some columns exist in core schema but are gated by policy or a later track:
 |---|---|---|
 | `password_hash` | Core column; `/s/` route is Track H5 | [RFC-0006](./rfc/0006-secure-share.md) |
 | `reclaim_key` | Active — guest claim lookup key (unique) | [DECISIONS.md D9](./DECISIONS.md) |
+| `size_bytes` | Core — per-user storage quota accounting | [DECISIONS.md D8](./DECISIONS.md) |
 | `public_id` | Core | Set on publish (`/p/`) and optionally on share (`/s/`) |
 
 ## 001_core.sql Layout
@@ -103,6 +105,7 @@ CREATE TABLE IF NOT EXISTS workspace_items (
     public_id       TEXT UNIQUE,
     title           TEXT,
     content_hash    TEXT,
+    size_bytes      INTEGER NOT NULL DEFAULT 0,
     mode            TEXT NOT NULL,                      -- v1: 'html' | 'raw' ('pipeline' reserved)
     reclaim_key     TEXT,
     password_hash   TEXT,
