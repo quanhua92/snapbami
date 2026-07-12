@@ -1,6 +1,9 @@
-# SnapBami
+# BamiTools
 
-Paste raw text → get a shareable dashboard in seconds.
+Authenticated workspaces for private files and published HTML pages. MCP and API tokens for agents.
+
+See [docs/introduction.md](docs/introduction.md), [docs/TODO.md](docs/TODO.md),
+[docs/DECISIONS.md](docs/DECISIONS.md) (resolved policy), and [docs/FUTURE.md](docs/FUTURE.md) (ideas).
 
 ## Setup
 
@@ -42,6 +45,6 @@ make down
 ## Project layout
 
 ```
-snapbami-server/src/snapbami_server/   # FastAPI app (config, main)
-snapbami-web/src/                       # React SPA (routes, components)
+bamitools-server/src/bamitools_server/   # FastAPI app (config, main)
+bamitools-web/src/                       # React SPA (routes, components)
 ```

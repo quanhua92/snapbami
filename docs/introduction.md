@@ -1,221 +1,239 @@
-# SnapBami
+# BamiTools
 
-> **The rendering layer local AI has been missing.**
+Most AI output never leaves the chat where it was made. Vendor links expire, you can't embed freely or own the lifecycle, and local models have no shareable URL at all.
 
-ChatGPT has Canvas. Claude has Artifacts. Your local model has terminal output.
+BamiTools gives that output a home you own: an **authenticated workspace** for private drafts, and a **durable public URL** (`/p/{id}`) for finished HTML. Reach it from the web UI, a REST API, or MCP from any AI agent — Cursor, Claude Desktop, your own scripts. Add small converter tools later (article→slides, PDF→page) without rebuilding anything.
 
-SnapBami gives any AI — local or cloud — the ability to publish interactive HTML via one API call. Get a shareable, embeddable URL instantly.
+**One line:** authenticated workspace for private files and published HTML — web, API, or MCP; add tools when you need them.
+
+> The rest of these docs sometimes uses a bánh mì-shop metaphor (workspace = shelf, published file = bánh mì). It's flavor, not a prerequisite — full vocabulary in [metaphor.md](./metaphor.md).
 
 ---
 
 ## The problem
 
-AI models generate rich output every day — benchmarks, metrics, comparisons, charts. But where does it go?
+AI models generate rich output every day — notes, benchmarks, charts, decks. But where does it go? Most of it never leaves the kitchen counter of a single chat vendor.
 
-> **ChatGPT Canvas / Claude Artifacts** — render in-chat and can be shared via links. But you can't embed them in your own pages, control their lifecycle, or use them with a different AI provider. Locked to one platform, one subscription.
+> **ChatGPT Canvas / Claude Artifacts** — great in-chat; shareable links exist, but you rarely own lifecycle, embed freely, or use the same artifact flow with a different AI.
 
-> **Local models (Ollama, DeepSeek, Llama)** — generate great code and analysis, but have no built-in way to publish, share, or embed visual output. Some UIs render HTML locally, but there's no shareable URL.
+> **Local models (Ollama, DeepSeek, Llama)** — strong cooks, no storefront: no built-in shareable URL.
 
-> **Every AI tool** — produces visual data that's hard to persist, embed, or share outside the platform that created it.
+> **Every AI tool** — produces something worth handing over, but it is hard to **stage privately**, **publish cleanly**, and **keep** outside the platform that made it.
+
+BamiTools answers: **put it on your shelf; when ready, put it in the glass case.**
 
 ---
 
-## MCP tools
+## What this product will become
 
-| Tool | Input | Output |
+Not another chatbot. Not a generic cloud drive. Not a full “build any app” site builder.
+
+**The end state:** the layer between AI tools and the open web — a shelf you own, bánh mì (HTML pages, decks, reports) you can link or embed, and a simple way to bolt on “make HTML from X” stations without changing the shop.
+
+### Three layers of the shop
+
+```text
+┌──────────────────────────────────────────────┐
+│  Specialty stations (tools — later)          │
+│  article→slides, PDF→HTML, …                 │
+│  thin converters; same shelf + publish       │
+├──────────────────────────────────────────────┤
+│  Guest cooks (agents — MCP + API tokens)     │
+│  Cursor / Claude Desktop / scripts           │
+│  list · read · write · publish               │
+├──────────────────────────────────────────────┤
+│  The shop (platform core)                    │
+│  Auth (who owns the shelf)                   │
+│  Workspace · private files · publish         │
+│  Back shelf /w/…  →  front case /p/{id}      │
+└──────────────────────────────────────────────┘
+```
+
+Everything valuable ends the same way: **a file on the shelf**, optionally **a public bánh mì** people can open or embed.
+
+### Day in the life
+
+| Who | What happens |
+|---|---|
+| **You** | Sign in → open your shelf → drop or generate files → **publish** → hand someone `/p/{id}`. That link is the product moment. |
+| **Your AI (Cursor, …)** | API token + MCP: writes `notes/spec.html` or `decks/q3.html`, publishes when you say so. Same shelf — not a vendor-only sandbox. |
+| **A tool (later)** | “Paste article → slides,” “PDF → readable HTML.” The station does not invent hosting; it leaves a bánh mì on *your* shelf and may put it in the case. |
+
+### Who it is for (over time)
+
+| When | Customer |
+|---|---|
+| **Now (MVP)** | Builders in Cursor/Claude who want a link they own — private drafts, then publish — without ChatGPT/Claude lock-in. |
+| **Next** | People who want one-click converters (article → deck, PDF → page) on the same account and URLs, without learning MCP. |
+| **Later (if sticky)** | Teams, permanent embeds, custom domains; chat/Telegram as *extra doors* into the same shelf — not a new product identity. |
+
+### What success looks like
+
+| Milestone | Meaning |
+|---|---|
+| **MVP** | You (and a few others) weekly write or have an agent write a file, publish, and send `/p/{id}` — and it still matters days later. |
+| **Product** | BamiTools is the default place finished HTML goes — like Gist for snippets, but for **pages / decks / reports**, with private staging and clean public URLs. |
+| **Business (optional)** | Paid tier for **permanent** public pages and larger storage (50 GB+); free tier capped at 1 GB (never deleted for inactivity); BYOK so tool LLM cost is not the host’s problem. Views stay cheap (CDN static). |
+
+### What it is not
+
+| Tempting path | Why not (v1) |
+|---|---|
+| Full Claude-like chat as the app | Competes with frontier chat UIs; chat is a later channel ([RFC-0005](./rfc/0005-deferred-chat-telegram.md)) |
+| One giant multi-agent “any dashboard” kitchen | Slow, expensive, quality-hard; open with small stations first ([RFC-0004](./rfc/0004-deferred-langgraph-pipeline.md) is deferred) |
+| Generic cloud drive | A shelf with no **display case** is just storage |
+| Hosted app builders (v0 / Lovable-style) | We sell **owned HTML artifacts from workflows**, not full product apps |
+
+The workspace is **never** the bánh mì. The shelf holds ingredients and finished dishes; only files — especially published HTML — are the sandwich.
+
+### Example bánh mì
+
+1. **Research note** — Agent writes `research/competitor.html` → publish → share with a cofounder.  
+2. **Slide dump** — Paste a long article → tool produces a deck → present from `/p/…`.  
+3. **PDF handoff** — Client PDF → readable HTML; later password case `/s/…`.  
+4. **Local model path** — Ollama helps write HTML on your machine; MCP/API puts it on the shelf and in the case so others open it without your laptop.
+
+Same spine every time: **identity → file → optional tool → publish → URL**.
+
+### Roadmap as the shop grows
+
+| Phase | Product becomes… |
+|---|---|
+| **Core (Track C)** | “My authenticated shelf + publish URL + agent access” |
+| **Tools (Track T)** | “I don’t always need Cursor — one-click X→HTML still lands on my shelf” |
+| **Hardening (Track H)** | Trust: rate limits, CSP, moderation, nicer counter UI, secure shares |
+| **Deferred chat / Telegram** | Mobile and paste channels into the *same* shelf |
+| **Deferred LangGraph kitchen** | Only if simple stations cannot do a complex multi-step job |
+
+Build tracker: [TODO.md](./TODO.md).
+
+---
+
+## What BamiTools is (v1)
+
+| Layer | Shop role | Product role |
 |---|---|---|
-| `list_widgets` | *(optional)* author, tag | Curated widgets with descriptions and examples |
-| `read_widget` | Widget ID | Full widget content (HTML + CSS + manifest) |
-| `publish_page` | Widget layout or raw HTML | Shareable URL |
-| `update_page` | Dashboard ID + new content | Same URL, updated content |
+| **Auth** | Customer account — who owns the shelf | Sign-in → internal user id; API tokens for agents |
+| **Workspace** | Back shelf | Private files (`/w/{workspace_id}/…`) |
+| **Publish** | Move to front display case | Public CDN HTML (`/p/{public_id}`) |
+| **MCP** | Wholesale / guest cook line | list / read / write / publish from Cursor, Claude Desktop, etc. |
 
-Browse curated widgets, read their source, publish, update. Four tools.
-
----
-
-## How SnapBami compares
-
-| | ChatGPT Canvas | Claude Artifacts | Local Models | **SnapBami** |
-|---|:---:|:---:|:---:|:---:|
-| Render visual output | Yes | Yes | Limited | **Yes** |
-| Shareable via URL | Yes | Yes | No | **Yes** |
-| Embeddable (Notion/Slack/docs) | No | No | No | **Yes** |
-| Works with any AI | OpenAI only | Anthropic only | — | **Yes** |
-| BYOK (your own key) | No | No | Yes | **Yes** |
-| No subscription required | No | No | Yes | **Yes** |
-| Structured widget system | No | No | No | **Yes** |
-| API/MCP for programmatic creation | No | No | No | **Yes** |
+**Not v1:** multi-agent LangGraph kitchen crew, chat-as-primary counter, Telegram takeout. Designs live in deferred RFCs.
 
 ---
 
 ## How it works
 
-Two creation paths — same output (static HTML, shareable URL):
+### Shelf and display case (storage)
 
-### 1. AI publishes
-
-External AI (Cursor, Claude, Copilot) generates widgets or raw HTML via MCP/API. SnapBami just hosts. **The AI is the creator.**
-
-### 2. SnapBami creates
-
-User provides data. SnapBami's own multi-agent pipeline (LangGraph: extractor → router → writers → editor) processes it into widgets → renders HTML. *Like NotebookLM: give it data, get a visualization.*
-
-Input methods (all supported, rate-limited by resource cost):
-
-| Input | Cost | Rate limit |
+| Space | Metaphor | Detail |
 |---|---|---|
-| **Text paste** (raw text, CSV, JSON, markdown) | Cheap | High |
-| **URL fetch** (SnapBami fetches + extracts) | Moderate | Medium |
-| **PDF/Images** (OCR extraction) | Expensive | Low |
-| **BYOK** (register your own API key) | User pays | **None** |
+| **Private workspace** | Back shelf | `/w/{workspace_id}/{filepath}` → `s3://bamitools-private/…` · session JWT or API token · owner-only |
+| **Public pages** | Front glass case | `/p/{public_id}` → `s3://bamitools-public/…` · public · CDN · **~$0 app compute** on views |
+| **Secure share (later)** | Off-menu / regulars-only | `/s/{public_id}` · password before streaming from private storage |
 
-> **Read path:** Viewers fetch directly from S3 via Cloudflare CDN. **The server is never involved.** $0 per view, scales infinitely.
+### Ingredients vs dishes
 
----
-
-## The widget architecture
-
-### Composable widgets
-
-Widgets are self-contained HTML/CSS/JS components — each designed by powerful models (Opus, GPT-4) for maximum quality. They live in a curated, versioned library:
-
-```
-widgets/
-├── kpi-card/         # metric + change indicator
-├── bar-chart/        # categorical comparison
-├── line-chart/       # time series
-├── table/            # tabular data
-├── progress-tracker/ # goal progress
-├── status-feed/      # list of updates
-└── ...               # community widgets
-```
-
-### SSG rendering (no client JS)
-
-At **create time**, the server renders the JSON spec into a complete, self-contained HTML page. Viewers get a fully baked page that works without JavaScript.
-
-```
-Create time (server):
-  JSON spec + widget templates (Jinja2)
-    → rendered into complete static HTML → uploaded to S3
-
-View time (browser):
-  GET /d/{id} → fully rendered HTML, no JS required
-```
-
-> **Templates** are pre-built JSON specs — guided setups with widgets already arranged.
-> Start from a template, change the data, server re-renders.
-
-The JSON spec (`d/{id}.json`) is stored alongside for edits and updates only — **viewers never need it.**
-
-### Per-widget: guided or raw
-
-Each widget slot can independently be guided or raw — mix freely. The root HTML (page shell: grid, theme, header) is also customizable.
-
-```json
-{
-  "title": "Q4 Results",
-  "root_html": "<optional custom page shell>",
-  "layout": [
-    {"type": "guided", "widget_id": "kpi-card", "props": {"label": "Revenue", "value": "$4.2k"}},
-    {"type": "raw", "html": "<canvas>custom d3 viz</canvas>"},
-    {"type": "guided", "widget_id": "kpi-card", "props": {"label": "Users", "value": "1200"}}
-  ]
-}
-```
-
-| Mode | How | Best for |
+| `mode` | Metaphor | Meaning |
 |---|---|---|
-| **Guided** | widget id + props → server renders from template | 80% of slots. Cheapest. |
-| **Raw** | completely custom HTML in that slot | Unique visualizations. Unlimited. |
+| `raw` | Ingredient | Upload, paste, source PDF/CSV/MD |
+| `html` | Bánh mì, wrapped | Finished HTML page or deck |
+| `pipeline` | Reserved kitchen line | Deferred multi-agent output ([RFC-0004](./rfc/0004-deferred-langgraph-pipeline.md)) |
 
-Omit `root_html` → default shell. Provide it → AI's custom theme, layout, fonts, animations.
+A raw CSV on the shelf is flour. The same data as HTML is a sandwich ready for the case.
 
-### Widget manifests
+### MCP tools (guest cooks)
 
-Each widget ships with a **manifest** — a JSON guide the cheap model reads to understand what's available, when to use it, and what data to extract:
+| Tool | Input | Output |
+|---|---|---|
+| `list_workspace_files` | optional directory | What’s on the shelf |
+| `read_workspace_file` | path | Content |
+| `write_workspace_file` | path, content | Draft on the back shelf |
+| `publish_item` | path | Bánh mì in the case: `/p/{public_id}` |
 
-```json
-{
-  "id": "kpi-card",
-  "description": "Single metric with change indicator. Use for standalone numbers.",
-  "best_for": ["headline metrics", "before/after comparisons"],
-  "props": {
-    "label": {"type": "string", "required": true, "description": "Metric name"},
-    "value": {"type": "string", "required": true, "description": "Display value"},
-    "change": {"type": "string", "description": "Delta, e.g. '+15%'"},
-    "trend": {"type": "enum", "values": ["up", "down", "flat"]}
-  },
-  "examples": [
-    {"label": "Revenue", "value": "$4.2k", "change": "+15%", "trend": "up"}
-  ]
-}
-```
+Details: [RFC-0002](./rfc/0002-mcp-and-tokens.md).
 
-> The manifest **IS the prompt** for the cheap model. No guessing — it knows exactly what widgets exist, what they do, and how to fill them.
+### Specialty stations (after core)
 
----
+Small converters plug into the same write/publish path — no platform rewrite:
 
-## BYOK + free tier
-
-| Tier | LLM | Rate limit | Storage | Who |
-|---|---|---|---|---|
-| Anonymous | SnapBami's DeepSeek V4 *(free)* | Per IP | 3 days inactive | Try without signup |
-| Registered *(free)* | SnapBami's DeepSeek V4 *(free)* | Per IP | 30 days inactive | Regular use |
-| Registered *(BYOK)* | User's own key *(any provider)* | **None** | 30 days inactive | Power users |
-| Paid | Any | None | **Permanent** | Permanent embeds |
-
-> Dashboards expire based on **inactivity**, not creation date. Every view resets the timer — popular content stays alive, abandoned content auto-expires.
-
-> Register your own API key to bypass rate limits entirely — you pay your own LLM costs.
-
----
-
-## MCP-first
-
-Any MCP-compatible AI tool can create and embed content:
-
-```
-User: "Benchmark 3 JSON parsers, show results"
-
-Cursor: [creates SnapBami dashboard via MCP tool]
-         → Returns embedded interactive HTML in chat
-         → Link persists for sharing
-```
-
-**MCP tools:** `list_widgets` · `read_widget` · `publish_page` · `update_page`
-
----
-
-## Why it's different
-
-| vs Competitor | SnapBami advantage |
+| Station | In → out |
 |---|---|
-| ChatGPT Canvas / Claude Artifacts | **Embeddable.** Any AI, not just one provider. BYOK, no subscription. API/MCP for programmatic creation. |
-| ChartGen.ai | AI generates the layout. Any input, not just CSV. MCP integration. |
-| Notion | Instant. No manual layout. Embeddable anywhere. |
-| GitHub Gist | Interactive widgets + charts, not just text. |
-| Plain LLM chat | Output persists. Shareable. Embeddable. Not lost in scroll. |
+| Article → slides | URL or text → HTML deck URL |
+| PDF → HTML | PDF → readable page URL |
+| Markdown → page | MD → clean reading page |
+
+Contract: [RFC-0003](./rfc/0003-pluggable-tools.md).
+
+---
+
+## How BamiTools compares
+
+| | ChatGPT Canvas | Claude Artifacts | Local models | **BamiTools** |
+|---|:---:|:---:|:---:|:---:|
+| Shareable URL | Yes | Yes | No | **Yes** |
+| Embeddable / owned lifecycle | Limited | Limited | No | **Yes** |
+| Works with any AI (MCP/API) | OpenAI only | Anthropic only | — | **Yes** |
+| Private workspace FS (shelf) | No | No | Local only | **Yes** |
+| BYOK later (bring your own sauce) | No | No | Yes | **Yes** |
+| No single-vendor chat lock-in | No | No | Yes | **Yes** |
+
+---
+
+## Tiers (sketch)
+
+| Tier | LLM (when stations need it) | Rate limit | Storage |
+|---|---|---|---|
+| Registered free | Platform key (metered) | Per user | 1 GB |
+| Registered + [BYOK](./rfc/0007-byok.md) | User key | Higher / none | 5 GB |
+| Paid | Any | Higher / none | 50 GB+ · permanent pages |
+
+Registered content is **never deleted for inactivity** — only bounded by the quota.
+**Guest** (no signup) is the zero-friction trial: paste or agent-publish → get a **view link** (3-day expiry, sandboxed) + a **claim link** (log in to own it). See [D1](./DECISIONS.md), [D6](./DECISIONS.md), [D9](./DECISIONS.md).
 
 ---
 
 ## Tech stack
 
-**FastAPI** · LangGraph · OpenAI-compatible LLM (BYOK) · RustFS/S3 · Redis · PostgreSQL · Docker · MCP
+**FastAPI** · PostgreSQL · Redis · S3-compatible storage · Docker · MCP · React SPA  
+
+Deferred full kitchen / takeout: LangGraph pipeline, Telegram — [RFC-0004](./rfc/0004-deferred-langgraph-pipeline.md), [RFC-0005](./rfc/0005-deferred-chat-telegram.md).
+
+---
 
 ## Security
 
-- Each dashboard is an isolated static HTML page (sandboxed iframe for embeds)
-- No access to SnapBami's API, cookies, or auth tokens
-- Guardrail gate: size limits, input validation, rate limiting
-- Content-Security-Policy restricts external requests
+- Back shelf (`/w/`) requires owner auth.
+- Front case (`/p/` / `bami.page`) serves **all** published HTML — registered and guest **identically** — under a strict CSP `sandbox` (JS runs for animations; no forms/connect/top-nav/popups). See [D6](./DECISIONS.md).
+- Sanitize platform-generated HTML; treat raw uploads as untrusted ingredients.
+- API tokens hashed at rest; never logged in full.
 
-## Cost
+---
 
-| Action | Cost |
+## Docs map
+
+| Doc | Purpose |
 |---|---|
-| AI create *(free tier)* | SnapBami pays (~$0.0001, DeepSeek V4, rate-limited) |
-| AI create *(BYOK)* | User's LLM cost *(any provider)* |
-| Raw HTML create | $0 |
-| View any dashboard | $0 |
-| Store on S3 | ~$0 *(auto-expired per tier)* |
+| [metaphor.md](./metaphor.md) | Full bánh mì vocabulary |
+| [DECISIONS.md](./DECISIONS.md) | Resolved policy (auth-first, BYOK, scopes, publish, `/s/`, abuse) |
+| [RFC-0001](./rfc/0001-core-platform.md) | Auth, workspaces, storage, publish (**active**) |
+| [RFC-0002](./rfc/0002-mcp-and-tokens.md) | API tokens + MCP (**active**) |
+| [RFC-0003](./rfc/0003-pluggable-tools.md) | Specialty stations / tool runner (**active design**) |
+| [RFC-0006](./rfc/0006-secure-share.md) | Secure share `/s/` (**hardening, Track H5**) |
+| [RFC-0007](./rfc/0007-byok.md) | Bring-your-own-key (**active, Track T prerequisite**) |
+| [RFC-0004](./rfc/0004-deferred-langgraph-pipeline.md) | Multi-agent kitchen (**deferred**) |
+| [RFC-0005](./rfc/0005-deferred-chat-telegram.md) | Chat counter + Telegram takeout (**deferred**) |
+| [db.md](./db.md) | Schema guide |
+| [TODO.md](./TODO.md) | Build tracker (Tracks C / T / H / D) + status taxonomy |
+| [FUTURE.md](./FUTURE.md) | Idea-stage items with no design (teams, domains, billing, …) |
+
+### Status of everything
+
+One taxonomy — **Active / Hardening / Deferred / Future** — see
+[DECISIONS.md D7](./DECISIONS.md) and the top of [TODO.md](./TODO.md).
+
+### Later (not core)
+
+- Multi-agent data → dashboard kitchen ([RFC-0004](./rfc/0004-deferred-langgraph-pipeline.md))
+- Web chat + Telegram ([RFC-0005](./rfc/0005-deferred-chat-telegram.md))
+- Teams, custom domains, billing, and other idea-stage items ([FUTURE.md](./FUTURE.md))

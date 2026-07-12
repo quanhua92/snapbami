@@ -36,6 +36,8 @@ class Settings(BaseSettings):
     S3_PRIVATE_BUCKET: str = "bamitools-private"
     S3_REGION: str = "us-east-1"
 
+    PAGES_BASE_URL: str = ""
+
     STATIC_DIR: str = "../bamitools-web/dist"
 
 
