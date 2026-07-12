@@ -10,8 +10,8 @@ _env = Environment(
 )
 
 
-def generate_html_loader(public_id: str, title: str = "Dashboard") -> str:
-    return _env.get_template("dashboard_loader.html").render(
+def generate_page_loader(public_id: str, title: str = "BamiTools") -> str:
+    return _env.get_template("page_loader.html").render(
         public_id=public_id,
         title=title,
     )

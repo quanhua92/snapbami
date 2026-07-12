@@ -3,12 +3,12 @@ import pathlib
 
 import asyncpg
 
-from snapbami_server.config import settings
+from bamitools_server.config import settings
 
 MIGRATION_DIR = (
     pathlib.Path(__file__).resolve().parent.parent
     / "src"
-    / "snapbami_server"
+    / "bamitools_server"
     / "db"
     / "migrations"
 )

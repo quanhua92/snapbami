@@ -1,6 +1,6 @@
 import re
 
-from snapbami_server.ids import generate_public_id, generate_reclaim_key
+from bamitools_server.ids import generate_public_id, generate_reclaim_key
 
 BASE62 = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 

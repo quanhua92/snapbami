@@ -20,22 +20,23 @@ class Settings(BaseSettings):
         extra="ignore",
     )
 
-    DATABASE_URL: str = "postgresql://snapbami:changeme@localhost:5432/snapbami"
+    DATABASE_URL: str = "postgresql://bamitools:changeme@localhost:5432/bamitools"
     REDIS_URL: str = "redis://localhost:6379/0"
 
     OPENAI_API_KEY: str = ""
     OPENAI_BASE_URL: str = "https://api.openai.com/v1"
     OPENAI_MODEL: str = "gpt-4o-mini"
 
-    FIREBASE_SA_PATH: str = "/etc/snapbami/firebase-service-account.json"
+    FIREBASE_SA_PATH: str = "/etc/bamitools/firebase-service-account.json"
 
     S3_ENDPOINT_URL: str = ""
     S3_ACCESS_KEY: str = ""
     S3_SECRET_KEY: str = ""
-    S3_BUCKET: str = "snapbami"
+    S3_PUBLIC_BUCKET: str = "bamitools-public"
+    S3_PRIVATE_BUCKET: str = "bamitools-private"
     S3_REGION: str = "us-east-1"
 
-    STATIC_DIR: str = "../snapbami-web/dist"
+    STATIC_DIR: str = "../bamitools-web/dist"
 
 
 settings = Settings()

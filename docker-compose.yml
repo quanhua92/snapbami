@@ -5,11 +5,25 @@ services:
       - "8000:8000"
     env_file: .env
     depends_on:
-      - redis
-      - postgres
-      - rustfs-init
-    volumes:
-      - firebase-sa:/etc/snapbami:ro
+      redis:
+        condition: service_started
+      postgres:
+        condition: service_healthy
+      rustfs-init:
+        condition: service_completed_successfully
+      migrate:
+        condition: service_completed_successfully
+
+  migrate:
+    build: .
+    env_file: .env
+    entrypoint: uv run python scripts/migrate.py
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rustfs-init:
+        condition: service_completed_successfully
+    restart: "no"
 
   redis:
     image: redis:8-alpine
@@ -24,13 +38,18 @@ services:
     image: postgres:18-alpine
     restart: unless-stopped
     environment:
-      POSTGRES_DB: snapbami
+      POSTGRES_DB: bamitools
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
       - "127.0.0.1:5432:5432"
     volumes:
       - postgres-data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d bamitools"]
+      interval: 3s
+      timeout: 3s
+      retries: 10
 
   rustfs:
     image: rustfs/rustfs:latest
@@ -59,7 +78,7 @@ services:
       AWS_SECRET_ACCESS_KEY: ${S3_SECRET_KEY}
       AWS_DEFAULT_REGION: ${S3_REGION}
     entrypoint: sh
-    command: -c "aws s3api create-bucket --bucket ${S3_BUCKET} --endpoint-url http://rustfs:9000 2>/dev/null || true"
+    command: -c "aws s3api create-bucket --bucket ${S3_PUBLIC_BUCKET} --endpoint-url http://rustfs:9000 2>/dev/null || true && aws s3api create-bucket --bucket ${S3_PRIVATE_BUCKET} --endpoint-url http://rustfs:9000 2>/dev/null || true"
     depends_on:
       rustfs-perms:
         condition: service_completed_successfully
@@ -68,4 +87,3 @@ volumes:
   postgres-data:
   redis-data:
   rustfs-data:
-  firebase-sa:

@@ -6,14 +6,14 @@
   <title>{{ title }}</title>
   <style>
     body { font-family: system-ui, sans-serif; margin: 0; padding: 2rem; background: #f9fafb; }
-    #dashboard-root { max-width: 1200px; margin: 0 auto; }
+    #page-root { max-width: 1200px; margin: 0 auto; }
     #loading { color: #6b7280; }
     #error { color: #dc2626; }
   </style>
 </head>
 <body>
-  <div id="dashboard-root">
-    <p id="loading">Loading dashboard...</p>
+  <div id="page-root">
+    <p id="loading">Loading...</p>
   </div>
   <script>
     const publicId = "{{ public_id }}";
@@ -23,12 +23,12 @@
         return r.json();
       })
       .then(spec => {
-        const root = document.getElementById('dashboard-root');
+        const root = document.getElementById('page-root');
         root.innerHTML = '';
         const h1 = document.createElement('h1');
-        h1.textContent = spec.title || 'Dashboard';
+        h1.textContent = spec.title || 'BamiTools';
         root.appendChild(h1);
-        // Widget rendering comes in phase 02/10
+        // Widget rendering comes in later phases
         const pre = document.createElement('pre');
         pre.style.cssText = 'background:#fff;padding:1rem;border-radius:8px;overflow:auto;';
         pre.textContent = JSON.stringify(spec, null, 2);
@@ -37,7 +37,7 @@
       .catch(() => {
         const el = document.getElementById('loading');
         el.id = 'error';
-        el.textContent = 'Failed to load dashboard';
+        el.textContent = 'Failed to load page';
       });
   </script>
 </body>

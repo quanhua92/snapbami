@@ -1,6 +1,6 @@
 import asyncpg
 
-from snapbami_server.config import settings
+from bamitools_server.config import settings
 
 pool: asyncpg.Pool | None = None
 

@@ -3,10 +3,10 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from snapbami_server.api.routes_read import router as read_router
-from snapbami_server.api.routes_spa import router as spa_router
-from snapbami_server.cache.redis import get_redis
-from snapbami_server.db.pool import close_pool, init_pool
+from bamitools_server.api.routes_read import router as read_router
+from bamitools_server.api.routes_spa import router as spa_router
+from bamitools_server.cache.redis import get_redis
+from bamitools_server.db.pool import close_pool, init_pool
 
 
 @asynccontextmanager

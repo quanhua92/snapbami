@@ -1,4 +1,4 @@
-"""End-to-end smoke test: create a dashboard, view it, verify cache.
+"""End-to-end smoke test: create a page, view it, verify cache.
 
 Usage:
     python scripts/test-e2e.py [--base-url http://localhost:8000]
@@ -29,59 +29,58 @@ def main():
     assert resp.json() == {"status": "ok"}
     print("OK")
 
-    # 2. Upload dashboard directly to S3
-    print("[2/6] Upload dashboard to S3...", end=" ")
+    # 2. Upload page directly to S3
+    print("[2/6] Upload page to S3...", end=" ")
     import asyncio
-    from snapbami_server.ids import generate_public_id
-    from snapbami_server.storage.s3 import upload_dashboard
-    from snapbami_server.storage.html_loader import generate_html_loader
+    from bamitools_server.ids import generate_public_id
+    from bamitools_server.storage.s3 import upload_page
+    from bamitools_server.storage.html_loader import generate_page_loader
 
     public_id = generate_public_id()
     spec = {
-        "title": "E2E Test Dashboard",
+        "title": "E2E Test Page",
         "layout": [
             {
-                "widget": "KpiCard",
-                "width": "col-span-1",
+                "widget_id": "kpi-card",
                 "props": {"label": "Revenue", "value": "$4.2k", "change": "+15%"},
             }
         ],
     }
-    html = generate_html_loader(public_id)
-    asyncio.run(upload_dashboard(public_id, json.dumps(spec), html))
+    html = generate_page_loader(public_id)
+    asyncio.run(upload_page(public_id, json.dumps(spec), html))
     print(f"OK (id={public_id})")
 
-    # 3. Fetch HTML via /d/{id}
-    print("[3/6] GET /d/{id} (HTML)...", end=" ")
-    resp = httpx.get(f"{base}/d/{public_id}", timeout=5)
+    # 3. Fetch HTML via /p/{id}
+    print("[3/6] GET /p/{id} (HTML)...", end=" ")
+    resp = httpx.get(f"{base}/p/{public_id}", timeout=5)
     assert resp.status_code == 200, f"FAIL: {resp.status_code}"
     assert "text/html" in resp.headers.get("content-type", "")
-    assert "dashboard-root" in resp.text
+    assert "page-root" in resp.text
     print("OK")
 
-    # 4. Fetch JSON via /d/{id}.json
-    print("[4/6] GET /d/{id}.json...", end=" ")
-    resp = httpx.get(f"{base}/d/{public_id}.json", timeout=5)
+    # 4. Fetch JSON via /p/{id}.json
+    print("[4/6] GET /p/{id}.json...", end=" ")
+    resp = httpx.get(f"{base}/p/{public_id}.json", timeout=5)
     assert resp.status_code == 200, f"FAIL: {resp.status_code}"
     body = resp.json()
-    assert body["title"] == "E2E Test Dashboard"
+    assert body["title"] == "E2E Test Page"
     print("OK")
 
     # 5. Second fetch should be Redis cache hit (same data)
-    print("[5/6] GET /d/{id}.json (cache hit)...", end=" ")
-    resp2 = httpx.get(f"{base}/d/{public_id}.json", timeout=5)
+    print("[5/6] GET /p/{id}.json (cache hit)...", end=" ")
+    resp2 = httpx.get(f"{base}/p/{public_id}.json", timeout=5)
     assert resp2.status_code == 200
     assert resp2.json() == body
     print("OK")
 
     # 6. 404 for nonexistent
-    print("[6/6] GET /d/nonexistent (404)...", end=" ")
-    resp = httpx.get(f"{base}/d/nonexistent", timeout=5)
+    print("[6/6] GET /p/nonexistent (404)...", end=" ")
+    resp = httpx.get(f"{base}/p/nonexistent", timeout=5)
     assert resp.status_code == 404, f"FAIL: {resp.status_code}"
     print("OK")
 
     print("=" * 50)
-    print(f"ALL PASSED (dashboard: {base}/d/{public_id})")
+    print(f"ALL PASSED (page: {base}/p/{public_id})")
 
 
 if __name__ == "__main__":

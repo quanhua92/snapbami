@@ -1,6 +1,6 @@
 import redis.asyncio as redis
 
-from snapbami_server.config import settings
+from bamitools_server.config import settings
 
 redis_client: redis.Redis | None = None
 

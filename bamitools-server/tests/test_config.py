@@ -1,6 +1,6 @@
 import pathlib
 
-from snapbami_server.config import _find_env_file
+from bamitools_server.config import _find_env_file
 
 
 def test_find_env_file_returns_string():

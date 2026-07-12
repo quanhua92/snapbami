@@ -4,7 +4,7 @@ from fastapi import APIRouter
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
-from snapbami_server.config import settings
+from bamitools_server.config import settings
 
 router = APIRouter()
 
