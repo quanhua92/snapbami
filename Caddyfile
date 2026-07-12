@@ -1,11 +1,11 @@
 {
-    email admin@snapbami.com
+    email admin@bamitools.com
 }
 
-snapbami.com {
+bamitools.com {
     reverse_proxy server:8000
 }
 
-api.snapbami.com {
+api.bamitools.com {
     reverse_proxy server:8000
 }

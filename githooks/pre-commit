@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# SnapBami pre-commit hook
+# BamiTools pre-commit hook
 # Runs ruff check + ruff format on staged Python files, then re-stages fixes.
 #
 # One-time setup (per clone):

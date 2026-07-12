@@ -19,7 +19,7 @@ build/
 
 # Frontend
 node_modules/
-snapbami-web/dist/
+bamitools-web/dist/
 
 # Runtime
 sessions/
